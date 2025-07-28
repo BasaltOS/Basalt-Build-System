@@ -1,0 +1,8 @@
+SOURCES = main.c;
+
+CC = gcc
+CXX= g++
+AS= as
+
+TYPE = executable 
+TARGET=test

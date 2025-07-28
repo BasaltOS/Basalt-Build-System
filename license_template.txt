@@ -1,0 +1,31 @@
+# -----------------------------------------------------------------------------
+#  This file is part of the Basalt Build System project.
+#
+#  Copyright (C) 2025  Aleksander Płomiński <plominski.aleksander@gmail.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# -----------------------------------------------------------------------------
+
+
+# ======== Basalt Build System ========
+#
+# Arguments:
+#    init: Initialize the build system, creating build.basalt file
+#    build: Build the project using the Basalt build system
+#    clean: Clean the build artifacts
+#    help: Show this help message
+#    reconfigure: Reconfigure the build system
+#    version: Show the version of the Basalt build system
+#
+# ========== Basalt Build System ========
