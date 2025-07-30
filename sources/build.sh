@@ -35,7 +35,7 @@ build_basalt() {
     AR="ar"
 
     # Przesłanianie narzędzi jeśli zdefiniowane
-    for tool in cc cxx ld as ar; do
+    for tool in cc cxx as ar; do
         tool_path="$build_directory/.basalt_tools/$tool"
         if [[ -f "$tool_path" ]]; then
             value="$(<"$tool_path")"
@@ -55,6 +55,15 @@ build_basalt() {
     c_files=0
     cxx_files=0
     as_files=0
+    if [[ -f "$build_directory/.basalt_flags/cflags" ]]; then
+        read -r -a CFLAGS < "$build_directory/.basalt_flags/cflags"
+    fi
+    if [[ -f "$build_directory/.basalt_flags/cxxflags" ]]; then
+        read -r -a CXXFLAGS < "$build_directory/.basalt_flags/cxxflags"
+    fi    
+    if [[ -f "$build_directory/.basalt_flags/asflags" ]]; then
+        read -r -a ASFLAGS < "$build_directory/.basalt_flags/asflags"
+    fi
 
     for entry in "${changed_files[@]}"; do
         src_file="${entry%%:*}"  # część przed ':'
@@ -64,15 +73,15 @@ build_basalt() {
         case "$lang" in
             c)
                 c_files=$((c_files + 1))
-                $CC -c $CFLAGS -o "$obj_file" "$src_file"
+                $CC -c -o "$obj_file" "$src_file" $CFLAGS
                 ;;
             cxx)
                 cxx_files=$((cxx_files + 1))
-                $CXX -c $CXXFLAGS -o "$obj_file" "$src_file"
+                $CXX -c -o "$obj_file" "$src_file" $CXXFLAGS
                 ;;
             as)
                 as_files=$((as_files + 1))
-                $AS -c $ASFLAGS -o "$obj_file" "$src_file"
+                $AS -c -o "$obj_file" "$src_file" $ASFLAGS
                 ;;
             *)
                 echo "Unknown language '$lang' for file $src_file"
@@ -83,24 +92,55 @@ build_basalt() {
 
     object_files=$(find "$build_directory" -type f -name '*.o')
 
+    read -r -a LDFLAGS < "$build_directory/.basalt_flags/ldflags"
     if [[ $APP_TYPE == "executable" ]]; then
         if (( cxx_files > 0 )); then
-            $CXX -o "$build_directory/$target" $object_files
+            $CXX -o "$build_directory/$target" $object_files $LDFLAGS
         else
-            $CC -o "$build_directory/$target" $object_files
+            $CC -o "$build_directory/$target" $object_files $LDFLAGS
         fi
     elif [[ $APP_TYPE == "sharedlib" ]]; then
         if (( cxx_files > 0 )); then
-            $CXX $LDFLAGS -shared -o "$build_directory/lib$target.so" $object_files
+            $CXX -shared -o "$build_directory/$target.so" $object_files $LDFLAGS
         else
-            $CC $LDFLAGS -shared -o "$build_directory/lib$target.so" $object_files
+            $CC -shared -o "$build_directory/$target.so" $object_files $LDFLAGS
         fi
     elif [[ $APP_TYPE == "staticlib" ]]; then
-        $AR rcs "$build_directory/lib$target.a" $object_files
+        $AR rcs "$build_directory/$target.a" $object_files
     else
         echo "Undefined app type: $APP_TYPE"
         exit 1
     fi
-}
+
+    while IFS= read -r subdir; do
+        if [[ -d "$subdir" ]]; then
+            echo "Entering subdirectory: $subdir"
+            cd "$subdir" || {
+                echo "ERROR: Failed to cd into $subdir" >&2
+                continue
+            }
+
+            script_name=$(basename "$0")
+            script_dir=$(dirname "$0")
+
+            if [[ "$script_dir" == "." ]]; then
+                # uruchomiono jako ./build.sh
+                cmd="../$script_name build"
+            else
+                # uruchomiono jako /usr/bin/build lub z PATH
+                cmd="$script_name build"
+            fi
+
+            echo "-> Running: $cmd"
+            $cmd || echo "WARNING: Subdirectory build failed in $subdir" >&2
+
+            cd - > /dev/null || exit 1
+        else
+            echo "WARNING: Subdirectory '$subdir' is not a directory." >&2
+        fi
+    done < "$build_directory/.basalt_subdirectories"
+
+
+    }
 
 # === BUILD AREA END ===/

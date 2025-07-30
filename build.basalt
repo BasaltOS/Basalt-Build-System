@@ -1,4 +1,8 @@
-SOURCES = main.c;
+SOURCES = $(*.c);
+SUBDIRECTORY = test/
+
+CFLAGS = -Wall
+LDFLAGS = -lc
 
 CC = gcc
 CXX= g++

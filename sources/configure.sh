@@ -136,6 +136,16 @@ configure_basalt() {
 
     fi
 
+    ldflags_line=$(grep -E '^[[:space:]]*CFLAGS[[:space:]]*=' "build.basalt" | sed 's/[[:space:]]*#[^;]*//g')
+    ldflags=$(echo "$ldflags_line" | cut -d '=' -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    if [[ ! -z "$ldflags" ]]; then
+        mkdir -p "$build_directory/.basalt_flags/"
+
+        echo "$ldflags" > "$build_directory/.basalt_flags/ldflags" 
+
+    fi
+
     target_line=$(grep -E '^[[:space:]]*TARGET[[:space:]]*=' "build.basalt" | sed 's/[[:space:]]*#[^;]*//g')
     target=$(echo "$target_line" | cut -d '=' -f2 | tr -d '[:space:]')
 
@@ -169,12 +179,27 @@ configure_basalt() {
         echo "Build config changed. Re-parsing..."
 
         sources_line=$(grep -E '^[[:space:]]*SOURCES[[:space:]]*=' "build.basalt" | sed 's/[[:space:]]*#[^;]*//g')
-        sources=$(echo "$sources_line" | cut -d '=' -f2 | tr -d '[:space:]' | tr ';' ' ')
+        sources_raw=$(echo "$sources_line" | cut -d '=' -f2-)
+
+        IFS=';' read -ra source_array <<< "$sources_raw"
 
         echo -n > "$build_directory/.basalt_sources"
 
-        for src in $sources; do
-            if [[ -f "$src" ]]; then
+        for src in "${source_array[@]}"; do
+            src=$(echo "$src" | xargs)
+
+            if [[ "$src" == \$\(*\) ]]; then
+                glob_pattern=$(echo "$src" | sed -E 's/^\$\((.*)\)$/\1/')
+                for file in $glob_pattern; do
+                    if [[ -f "$file" ]]; then
+                        timestamp=$(stat -c %Y "$file")
+                        language=$(detect_language "$file")
+                        echo "$timestamp $file $language" >> "$build_directory/.basalt_sources"
+                    else
+                        echo "WARNING: Globbed file '$file' does not exist." >&2
+                    fi
+                done
+            elif [[ -f "$src" ]]; then
                 timestamp=$(stat -c %Y "$src")
                 language=$(detect_language "$src")
                 echo "$timestamp $src $language" >> "$build_directory/.basalt_sources"
@@ -182,6 +207,24 @@ configure_basalt() {
                 echo "WARNING: Source file '$src' does not exist." >&2
             fi
         done
+
+        subdirs_line=$(grep -E '^[[:space:]]*SUBDIRECTORY[[:space:]]*=' "build.basalt" | sed 's/[[:space:]]*#[^;]*//g')
+        subdirs_raw=$(echo "$subdirs_line" | cut -d '=' -f2-)
+        IFS=';' read -ra subdir_array <<< "$subdirs_raw"
+
+        echo -n > "$build_directory/.basalt_subdirectories"
+
+        for dir in "${subdir_array[@]}"; do
+            dir=$(echo "$dir" | xargs)
+            if [[ -d "$dir" ]]; then
+                realpath=$(realpath "$dir")
+                echo "$realpath" >> "$build_directory/.basalt_subdirectories"
+            else
+                echo "WARNING: Subdirectory '$dir' does not exist." >&2
+            fi
+        done
+
+
 
         echo "$current_md5" > "$md5_file"
 

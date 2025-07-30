@@ -28,20 +28,19 @@
 
 ### Variables
 
-| Variable   | Description                                             |
-| ---------- | ------------------------------------------------------- |
-| `SOURCES`  | List of source files (e.g. `main.c util.c`)             |
-| `CC`       | C compiler command (e.g. `gcc`), Default: gcc           |
-| `CXX`      | C++ compiler command (e.g. `g++`), Default: g++         |
-| `AS`       | Assembler command (e.g. `as`), Default: as              |
-| `CFLAGS`   | Flags passed to the C compiler                          |
-| `CXXFLAGS` | Flags passed to the C++ compiler                        |
-| `ASFLAGS`  | Flags passed to the assembler                           |
-| `LDFLAGS`  | Flags passed to the linker                              |
-| `TYPE`     | Output type: `executable`, `shared`, `static`, `object` |
-| `TARGET`   | Name of the resulting binary file (e.g. `myapp`)        |
-
-
+| Variable       | Description                                             |
+| -------------- | ------------------------------------------------------- |
+| `SOURCES`      | List of source files (e.g. `main.c util.c`)             |
+| `CC`           | C compiler command (e.g. `gcc`), Default: gcc           |
+| `CXX`          | C++ compiler command (e.g. `g++`), Default: g++         |
+| `AS`           | Assembler command (e.g. `as`), Default: as              |
+| `CFLAGS`       | Flags passed to the C compiler                          |
+| `CXXFLAGS`     | Flags passed to the C++ compiler                        |
+| `ASFLAGS`      | Flags passed to the assembler                           |
+| `LDFLAGS`      | Flags passed to the linker                              |
+| `TYPE`         | Output type: `executable`, `shared`, `static`, `object` |
+| `TARGET`       | Name of the resulting binary file (e.g. `myapp`)        |
+| `SUBDIRECTORY` | Variable with subdirectories 
 
 ---
 
@@ -51,7 +50,7 @@ Example:
 # This is comment
 ; This is comment also
 SOURCES = main.c util.c
-
+SUBDIRECTORIES = test/; utils/
 CC = gcc
 CXX = g++
 AS = as
