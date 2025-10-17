@@ -162,9 +162,9 @@ configure_basalt() {
 
         if [[ "$type" == "executable" ]]; then
             echo "$type" > "$build_directory/.basalt_type"
-        elif [[ "$type" == "staticlib" ]]; then
+        elif [[ "$type" == "static" ]]; then
             echo "$type" > "$build_directory/.basalt_type"
-        elif [[ "$type" == "sharedlib" ]]; then
+        elif [[ "$type" == "shared" ]]; then
             echo "$type" > "$build_directory/.basalt_type"
         elif [[ "$type" == "object" ]]; then
             echo "$type" > "$build_directory/.basalt_type"
