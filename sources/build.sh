@@ -99,14 +99,16 @@ build_basalt() {
         else
             $CC -o "$build_directory/$target" $object_files $LDFLAGS
         fi
-    elif [[ $APP_TYPE == "sharedlib" ]]; then
+    elif [[ $APP_TYPE == "shared" ]]; then
         if (( cxx_files > 0 )); then
             $CXX -shared -o "$build_directory/$target.so" $object_files $LDFLAGS
         else
             $CC -shared -o "$build_directory/$target.so" $object_files $LDFLAGS
         fi
-    elif [[ $APP_TYPE == "staticlib" ]]; then
+    elif [[ $APP_TYPE == "static" ]]; then
         $AR rcs "$build_directory/$target.a" $object_files
+    elif [[ $APP_TYPE == "object" ]]; then
+        :
     else
         echo "Undefined app type: $APP_TYPE"
         exit 1
