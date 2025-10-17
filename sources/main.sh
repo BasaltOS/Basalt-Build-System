@@ -3,7 +3,7 @@
 # === BUILD AREA START ===/
 
 build_directory="build"
-version=1
+version=2
 show_help() {
     echo "Usage: $0 [init|build|clean|help|reconfigure|version]"
     echo "Commands:"
@@ -23,7 +23,6 @@ case "${1:-}" in
             exit 1
         fi
         echo "# Basalt build config" > build.basalt
-        echo "build_system_version = $version" >> build.basalt
         echo "Initialization complete."
         ;;
 

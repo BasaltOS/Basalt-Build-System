@@ -18,7 +18,7 @@ detect_language() {
             echo "c"
             ;;
         cpp|cc|cxx|C)
-            echo "c++"
+            echo "cxx"
             ;;
         s|S|asm)
             echo "as"
@@ -35,10 +35,10 @@ infer_type_from_target() {
 
     case "$ext" in
         so)
-            echo "sharedlib"
+            echo "shared"
             ;;
         a)
-            echo "staticlib"
+            echo "static"
             ;;
         o)
             echo "object"
